@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AES Encryption Project</title>
+  <link rel="stylesheet" href="landing.css">
+  <!-- CryptoJS Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+</head>   
+
+<style>
+    
+body {
+  background: url('WhatsApp Image 2025-09-22 at 12.14.46 AM.jpeg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Poppins', sans-serif; /* optional: make text modern */
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  line-height: 1.7;
+  color: #333;
+  font-size: 1.1rem; /* slightly larger text */
+  
+}
+
+/* Header */
+header.header {
+  background: #4a90e2;
+  color: white;
+  text-align: center;
+  padding: 25px 0;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+header.header h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: 2px;
+}
+
+/* Labels & Inputs */
+label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+input[type="text"], textarea, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* Buttons */
+button {
+  margin-top: 20px;
+  padding: 12px 25px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #357ABD;
+}
+
+/* Output boxes */
+.output {
+
+  background: #f4f4f9;
+  border: 1px solid #ccc;
+  padding: 12px;
+  border-radius: 6px;
+  min-height: 40px;
+  margin-top: 10px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+
+
+/* Back to Home button */
+.back-btn {
+  display: inline-block;
+  margin-top: 30px;
+  background: #555;
+}
+
+.back-btn:hover {
+  background: #333;
+}
+
+/* Key size dropdown styling */
+.form-group {
+  margin-top: 15px;
+}
+
+select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+</style>
+<body>
+
+
+ <section class="hero">
+   
+<header class="header">
+    <h1>AES Encryption Tool</h1>
+  </header>
+
+  <main class="container">
+    <p>
+      Enter a message and a secret key below to see how AES encryption and decryption work.
+      You can also choose between <strong>128-bit</strong>, <strong>192-bit</strong>, and <strong>256-bit</strong> key sizes.
+    </p>
+
+    <label for="message">Message:</label>
+    <textarea id="message" rows="3" placeholder="Enter your message..."></textarea>
+
+
+    <label for="key">Key:</label>
+    <input type="text" id="key" placeholder="Enter secret key...">
+
+    <div class="form-group">
+      <label for="keySize">Select Key Size:</label>
+      <select id="keySize">
+        <option value="128">128-bit</option>
+        <option value="192">192-bit</option>
+        <option value="256">256-bit</option>
+      </select>
+    </div>
+
+  
+    <button onclick="encryptMessage()">Encrypt</button>
+    <button onclick="decryptMessage()">Decrypt</button>
+
+ 
+    <h3>Encrypted Text:</h3>
+    <div class="output" id="encryptedOutput"></div>
+
+    <h3>Decrypted Text:</h3>
+    <div class="output" id="decryptedOutput"></div>
+
+  
+    
+  </main>
+
+  <script>
+    function getKey(key, size) {
+      // Ensure key length matches the selected size
+      const hash = CryptoJS.SHA256(key).toString();
+      if (size === 128) return CryptoJS.enc.Hex.parse(hash.substring(0, 32));
+      if (size === 192) return CryptoJS.enc.Hex.parse(hash.substring(0, 48));
+      if (size === 256) return CryptoJS.enc.Hex.parse(hash.substring(0, 64));
+    }
+
+    function encryptMessage() {
+      const message = document.getElementById("message").value;
+      const keyText = document.getElementById("key").value;
+      const size = parseInt(document.getElementById("keySize").value);
+
+      if (!message || !keyText) {
+        alert("Please enter both a message and a key.");
+        return;
+      }
+
+      const key = getKey(keyText, size);
+      const encrypted = CryptoJS.AES.encrypt(message, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      document.getElementById("encryptedOutput").innerText = encrypted.toString();
+    }
+
+    function decryptMessage() {
+      const encryptedText = document.getElementById("encryptedOutput").innerText;
+      const keyText = document.getElementById("key").value;
+      const size = parseInt(document.getElementById("keySize").value);
+
+      if (!encryptedText || !keyText) {
+        alert("Please encrypt a message first, and provide the key.");
+        return;
+      }
+
+      const key = getKey(keyText, size);
+      const decrypted = CryptoJS.AES.decrypt(encryptedText, key, {
+        mode: CryptoJS.mode.ECB,
+        padding: CryptoJS.pad.Pkcs7
+      });
+      document.getElementById("decryptedOutput").innerText = decrypted.toString(CryptoJS.enc.Utf8);
+    }
+  </script>
+
+  
+  
+
+  <footer>
+    <p>Created for demonstration purposes | AES Encryption Project</p>
+  </footer>
+</body>
+</html>
